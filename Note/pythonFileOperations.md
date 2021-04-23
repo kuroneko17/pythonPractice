@@ -1,6 +1,7 @@
 #	python操作文件
 ---
 ###	读写文件
+---
 *	文件和文件路径
 	-	文件有两个关键属性： “文件名” （通常写成一个单词）和“路径” 。路径指明了文件在计算机上的位置。
 	-	根文件夹” ，它包含了所有其他文件夹。在 Windows 中，根文件夹名为 C:\，也称为 C：盘。在 OS X 和 Linux 中，根文件夹是/。在本书中，我使用 Windows 风格的根文件夹，C:\。如果你在 OS X 或 Linux 上输入交互式环境的例子，请用/代替。
@@ -41,7 +42,7 @@
 			-	os.path.exists(path)  --  如果path参数所指的文件或者文件目录存在的话，返回True，否则返回False。
 			-	os.path.isfile(path)  --  如果path参数是一个文件的话，返回True，否则返回False。
 			-	os.path.isdir(path)  -- 如果path参数是一个文件目录的话，返回True，否则返回False。
-			-	os.path
+			-	os.path.getsize(file)  --  获取文件的大小
 			```
 				>>> os.makedirs("c:\\test\\one\\two\\three")
 				>>> os.path.abspath('cwd')
@@ -121,6 +122,8 @@
 	-	open函数
 		*	 open()函数打开一个文件，就要向它传递一个字符串路径，表明希望打开的文件。这既可以是绝对路径，也可以是相对路径。open()函数返回一个 File 对象。这些命令都将以读取纯文本文件的模式打开文件，或简称为“读模式” 。当文件以读模式打开时， Python 只让你从文件中读取数据， 你不能以任何方式写入或修改它。在 Python 中打开文件时，读模式是默认的模式。但如果你不希望依赖于 Python 的默认值，也可以明确指明该模式，向 open()传入字符串'r'，作为第二个参数。
 		*	 open()将返回一个 File 对象。File 对象代表计算机中的一个文件，它只是Python 中另一种类型的值， 就像你已熟悉的列表和字典。
+		*	with open(fileName1, 'w+') as fn1, open('fileName2', 'r+') as fn2:(用with open() 方式打开文件不用主动调用close()关闭文件)
+		*	open(fileName, 'type', encoding='utf-8', errors='ingore')参数 type=[r|r+|w|w+|a|a+|wb|rb]
 *	读取文件内容
 	-	文件读取
 		*	fileObj.read()  --  返回fileObj的内容作为一整个大字符串
@@ -219,6 +222,7 @@
 ---
 
 ###	组织文件
+---
 *	shutil模块
 	-	shutil（或称为 shell 工具）模块中包含一些函数，让你在 Python 程序中复制、移动、改名和删除文件。要使用 shutil 的函数，首先需要 import shutil。
 	-	复制文件和文件夹
@@ -243,3 +247,68 @@
 			-	导入第三方模块，send2trash	
 			-	send2trash.send2trash(filename)  --  把指定文件发送到计算机回收站
 	-	遍历目录树
+		*	os.walk()函数被传入一个字符串值，即一个文件夹的路径。
+		```
+		os.walk()函数被传入一个字符串值，即一个文件夹的路径。你可以在一个 for
+		循环语句中使用 os.walk()函数，遍历目录树，就像使用 range()函数遍历一个范围的
+		数字一样。不像 range()，os.walk()在循环的每次迭代中，返回 3 个值： 
+		1．当前文件夹名称的字符串。 
+		2．当前文件夹中子文件夹的字符串的列表。 
+		3．当前文件夹中文件的字符串的列表。 
+		所谓当前文件夹，是指 for 循环当前迭代的文件夹。程序的当前工作目录，不
+		会因为 os.walk()而改变。 
+		就像你可以在代码 for i in range(10):中选择变量名称 i 一样， 你也可以选择前面
+		列出来的 3 个字的变量名称。我通常使用 foldername、subfolders 和 filenames。 
+		```
+	-	用zipfile压缩文件
+		*	导入zipfile模块，使用zipfile.ZipFile(zipFileName)返回一个ZipFile对象(类似python打开一个文件返回一个对象)
+		*	读取.zip文件
+			-	zipfileName.namelist(), gitinfo(), file_size, compress_size
+			```
+			import zipfile
+			zipFileName = 'zipFileTest.zip'
+			zipfileName = zipfile.ZipFile(zipFileName)
+			zipfileName.namelist()
+			txtFile = zipfileName.getinfo('testFolder/b.txt')
+			txtFile.file_size #  文件大小
+			txtFile.compress_size # 文件压缩后大小
+			# 计算文件压缩率
+			round(txtFile.compress_seze / txtFile.file_size, 2)
+			zipfileName.close()
+			```
+		*	从zip文件中解压
+			-	zipfileName.extractall(extractFolder)  解压压缩包到指定文件夹
+		 	-	zipfileName.extract(fileInZip, extractFolder)  解压压缩包文件到指定文件夹
+		 	```
+		 	>>> newZipFile = zipfile.ZipFile('testFolder.zip')
+			>>> newZipFile.extract('testFolder/b.txt', '..')
+			'..\\testFolder\\b.txt'
+			>>> newZipFile.close()
+			>>> newZipFile = zipfile.ZipFile('../testFolder.zip')
+			>>> newZipFile.extractall('..')
+			>>> newZipFile.close()
+			ZipFile 对象的 extractall()方法从 ZIP 文件中解压缩所有文件和文件夹，放到当
+			前工作目录中。你可以向extractall()传递的一个文件夹名称， 它将文件解压缩到那个文件夹， 
+			而不是当前工作目录。如果传递给 extractall()方法的文件夹不存在，它会被创建。
+			传递给 extract()的字符串，必须匹配 namelist()返回的字符串列表中的一个。或
+			者，你可以向 extract()传递第二个参数，将文件解压缩到指定的文件夹，而不是当
+			前工作目录。如果第二个参数指定的文件夹不存在，Python 就会创建它。extract()
+			的返回值是被压缩后文件的绝对路径。 
+		 	```
+		*	创建和添加到zip文件
+			-	要创建你自己的压缩 ZIP 文件，必须以“写模式”打开 ZipFile 对象，即传入'w'作为第二个参数（这类似于向 open()函数传入'w'，以写模式打开一个文本文件） 。
+			-	newZipFile = zipfile.ZipFile('newZipFileName.zip', 'w/a')
+				newZipFile.write('fileName/FolderName', compress_type=zipfile.ZIP_DEFLATED)
+				newZipFile.close()
+			```
+			>>> newZipFile = zipfile.ZipFile('testZipFolder.zip', 'w')
+			>>> newZipFile.write('testFolder', compress_type=zipfile.ZIP_DEFLATED)
+			>>> newZipFile.close()
+			这段代码将创建一个新的 ZIP 文件， 名为new.zip， 它包含spam.txt 压缩后的内容。  
+			要记住，就像写入文件一样，写模式将擦除 ZIP 文件中所有原有的内容。如果
+			只是希望将文件添加到原有的 ZIP 文件中，就要向 zipfile.ZipFile()传入'a'作为第二
+			个参数，以添加模式打开 ZIP 文件。 
+			```
+	-	小实验
+		*	项目：将带有美国风格日期的文件改名为欧洲风格日期(renameDates.py)
+		*	项目：将一个文件夹备份到一个 ZIP 文件 (backUpToZip.py)

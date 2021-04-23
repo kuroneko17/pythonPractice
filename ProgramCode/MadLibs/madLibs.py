@@ -47,9 +47,21 @@ madLibsTextList = madLibsText.strip().split(' ')
 for i in range(len(madLibsTextList)):
 	# 处理包含句点的词
 	dotMark = False
+	# if madLibsTextList[i].endswith('.')
 	if madLibsTextList[i][-1] == '.':
 		dotMark = True
 		madLibsTextList[i] = madLibsTextList[i][:-1]
+	"""
+	dot = ''
+	if madLibsTextList[i].endswith('.'):
+		dot += madLibsTextList[i][-1]
+	
+	... ...
+
+	if dot:
+		madLibsTextList[i] += dot
+	"""
+
 	# 遍历替代词组，判断文本内容列表中是否存在需要替换的词，有就获取用户输入替代
 	for rword in replaceWord:
 		if rword == madLibsTextList[i] :
